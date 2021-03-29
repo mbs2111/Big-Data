@@ -1,0 +1,167 @@
+#####################################################
+		Hadoop 3 Single Node
+#####################################################
+#Start EC2 Instance on AWS with Ubuntu 16.04 and T2-Medium, Security Group-Default
+
+#Goto Security Group(SG)-> select default -> Edit Inbound Rule -> Add Rule -> Select-> All Traffic and Source- MyIP -> Save
+
+ssh -i key.pem username@publicIP
+
+sudo apt-get update
+
+#Install default open jdk
+sudo apt-get install default-jdk -y
+java -version
+
+#Create Dedicated User and group
+sudo addgroup hadoop
+sudo adduser hduser --ingroup hadoop
+
+#make user as sudo user
+sudo adduser hduser sudo
+su hduser
+cd
+
+#Configure Passwordless SSH on localhost
+ssh-keygen     #Press Three Enters
+cd .ssh
+cat id_rsa.pub >> authorized_keys
+ls
+cd
+ssh localhost
+exit
+
+
+#Disable IPV6 [No Need to perform in Hadoop 3]
+sudo nano /etc/sysctl.conf
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+sudo sysctl -p
+
+#Download Hadoop
+wget -c https://downloads.apache.org/hadoop/common/stable/hadoop-3.3.0.tar.gz
+
+#Extract and Install Hadoop tar ball
+tar -xzvf hadoop-3.3.0.tar.gz
+sudo mv hadoop-3.3.0 /usr/local/hadoop
+sudo chown hduser:hadoop -R /usr/local/hadoop
+
+# Set Enviornment Variable
+readlink -f $(which java)
+nano ~/.bashrc  #Goto lastline and add following commands
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export HADOOP_HOME=/usr/local/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin
+export PATH=$PATH:$HADOOP_HOME/sbin
+export PATH=$PATH:/usr/local/hadoop/bin/
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop
+
+source ~/.bashrc
+echo $PATH
+
+cd /usr/local/hadoop/etc/hadoop/
+
+#Update hadoop-env.sh
+nano hadoop-env.sh
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export HADOOP_LOG_DIR=/var/log/hadoop
+
+sudo mkdir /var/log/hadoop
+sudo chown hduser:hadoop -R /var/log/hadoop
+
+#Update core-site.xml [Cluser Wide Configuration] insert in configuration tag
+nano core-site.xml
+ <property>
+  <name>fs.defaultFS</name>
+  <value>hdfs://localhost:54310</value>
+</property>
+
+
+#Update mapred-site.xml
+nano mapred-site.xml
+<property>
+  <name>mapreduce.jobtracker.address</name>
+  <value>localhost:54311</value>
+   </property>
+<property>
+   <name>mapreduce.framework.name</name>
+   <value>yarn</value>
+ </property>
+<property>
+  <name>yarn.app.mapreduce.am.env</name>
+  <value>HADOOP_MAPRED_HOME=$HADOOP_MAPRED_HOME</value>
+</property>
+<property>
+  <name>mapreduce.map.env</name>
+  <value>HADOOP_MAPRED_HOME=$HADOOP_MAPRED_HOME</value>
+</property>
+<property>
+  <name>mapreduce.reduce.env</name>
+  <value>HADOOP_MAPRED_HOME=$HADOOP_MAPRED_HOME</value>
+</property>
+
+
+#Update hdfs-site.xml
+sudo mkdir -p /usr/local/hadoop_store/hdfs/namenode
+sudo mkdir -p /usr/local/hadoop_store/hdfs/datanode
+sudo chown -R hduser:hadoop /usr/local/hadoop_store
+
+nano hdfs-site.xml
+<property> 
+<name>dfs.replication</name>
+  <value>1</value>
+ </property>
+ <property>
+   <name>dfs.namenode.name.dir</name>
+   <value>file:/usr/local/hadoop_store/hdfs/namenode</value>
+ </property>
+ <property>
+   <name>dfs.datanode.data.dir</name>
+   <value>file:/usr/local/hadoop_store/hdfs/datanode</value>
+ </property>
+
+
+#Update yarn-site.xml
+nano yarn-site.xml
+<property>
+      <name>yarn.nodemanager.aux-services</name>
+      <value>mapreduce_shuffle</value>
+   </property>
+<property>
+        <name>yarn.nodemanager.env-whitelist</name>
+        <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+  </property>
+
+
+#Format Namenode
+cd
+hdfs namenode -format
+
+start-dfs.sh
+start-yarn.sh
+
+#Check all nodes started or not
+jps
+
+
+
+hdfs dfs -mkdir /user
+hdfs dfs -mkdir /user/hduser
+hdfs dfs -put hadoop-3.3.0.tar.gz /user/hduser
+
+yarn jar /usr/local/hadoop/share/hadoop/mapreduce/hadoop-*examples*.jar pi 5 10
+
+
+WebUI
+NN:9870
+
+public-ip:9870
+public-ip:8088
+

@@ -15,6 +15,7 @@ scp -i ec2keydemo.pem ec2keydemo.pem ubuntu@54.211.11.251:~/.ssh/
 #Go to .ssh directory on ubuntu user and assign permission as 600
 cd .ssh
 chmod 600 ec2keydemo.pem
+cd
 
 # Create a Hadoop user and group for accessing HDFS
 sudo addgroup hadoop
@@ -30,6 +31,7 @@ cd .ssh
 ls
 #id_rsa.pub key [To allow multiple connections, append the public key to the authorized_keys file on the remote system instead of copying it. ]
 cat id_rsa.pub >> authorized_keys
+cd
 
 # Copy the instance public key (multi.pem) to hduser's directory
 sudo su
@@ -150,7 +152,7 @@ nano .profile
 
 
 ----------****** Create a snapshot at this point ******-----------------
-Create AMI Image
+Create AMI Image   #Goto EC2 Instance -> Select NN -> Action -> Image and Template -> Create Image -> Enter Name-> Select Enable reboot -> Create AMI
 
 Create 4 nodes from this image using EC2 Settings as Instance=4, T2-Micro, Sg-default, Lunch
 
@@ -177,7 +179,7 @@ sudo nano /etc/hosts
 
 #Save and exit /etc/hosts
 
-# Install and Configure dsh
+# Install and Configure dsh [dancing shell]
 sudo apt install dsh -y
 
 #Add names in /etc/dsh/machines.list and comment #localhost

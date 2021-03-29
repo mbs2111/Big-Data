@@ -1,5 +1,5 @@
 #####################################################
-		Hadoop 3 Single Node
+#		Hadoop 3 Single Node
 #####################################################
 #Start EC2 Instance on AWS with Ubuntu 16.04 and T2-Medium, Security Group-Default
 

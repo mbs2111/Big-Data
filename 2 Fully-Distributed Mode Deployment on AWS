@@ -67,7 +67,7 @@ export HADOOP_HDFS_HOME=$HADOOP_HOME
 export YARN_HOME=$HADOOP_HOME
 export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop
 
-#Save and Exit .bashrc file
+#Save and Exit .bashrc file [^o Enter ^x]
 
 #Refresh .bashrc
 source ~/.bashrc

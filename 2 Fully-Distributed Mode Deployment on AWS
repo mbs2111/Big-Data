@@ -297,6 +297,7 @@ hdfs namenode -format
 start-dfs.sh
 
 #start on RM Node
+ssh rm
 start-yarn.sh
 exit
 
@@ -310,8 +311,8 @@ hdfs dfs -mkdir /user/ubuntu
 #Trasnfer file from hduser to Node
 hdfs dfs -put hadoop-3.3.0.tar.gz /user/ubuntu
 
-hdfs dfs -ls  /user/hduser
-hdfs dfs -ls -R /user/hduser
+hdfs dfs -ls /user/ubuntu
+hdfs dfs -ls -R /user/ubuntu
 
 #Switch to RM check yarn is working or not
 ssh rm

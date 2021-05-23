@@ -310,10 +310,12 @@ hdfs dfs -mkdir /user/ubuntu
 #Trasnfer file from hduser to Node
 hdfs dfs -put hadoop-3.3.0.tar.gz /user/ubuntu
 
-hdfs dfs -ls 
-hdfs dfs -ls -R
+hdfs dfs -ls  /user/hduser
+hdfs dfs -ls -R /user/hduser
 
 #Switch to RM check yarn is working or not
+ssh rm
+start-yarn.sh
 yarn jar /usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi  5 10
 
 #To Check in browser use for NameNode

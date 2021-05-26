@@ -232,6 +232,7 @@ nano core-site.xml
 
 hdfs dfs -rm <file>
 
+#Check the same file path for trash, where trash directory is created
 hdfs dfs -ls -R <path>
 
 ## To permanently delete without going to trash
